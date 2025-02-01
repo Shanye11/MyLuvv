@@ -135,10 +135,13 @@
             { src: "WebVids/vid4.mov", dayOffset: 3 }
         ];
 
+        if (!localStorage.getItem("firstVideoTimestamp")) {
+            localStorage.setItem("firstVideoTimestamp", Date.now());
+        }
+
         function getDaysSinceStart() {
-            let firstVideoTimestamp = localStorage.getItem("firstVideoTimestamp");
-            if (!firstVideoTimestamp) return 0;
-            let firstPlayDate = new Date(parseInt(firstVideoTimestamp));
+            let firstVideoTimestamp = parseInt(localStorage.getItem("firstVideoTimestamp"));
+            let firstPlayDate = new Date(firstVideoTimestamp);
             let now = new Date();
             let diffTime = now - firstPlayDate;
             return Math.floor(diffTime / (1000 * 60 * 60 * 24));
@@ -148,7 +151,7 @@
             const videoList = document.getElementById("video-list");
             const daysSinceStart = getDaysSinceStart();
             
-            videos.forEach((video, index) => {
+            videos.forEach((video) => {
                 const videoItem = document.createElement("div");
                 videoItem.classList.add("video-item");
                 
@@ -173,23 +176,18 @@
         }
 
         function updateCountdown() {
-            let firstVideoTimestamp = localStorage.getItem("firstVideoTimestamp");
-            if (!firstVideoTimestamp) return;
-            
-            let nextUnlock = new Date(parseInt(firstVideoTimestamp));
+            let firstVideoTimestamp = parseInt(localStorage.getItem("firstVideoTimestamp"));
+            let nextUnlock = new Date(firstVideoTimestamp);
             nextUnlock.setDate(nextUnlock.getDate() + getDaysSinceStart() + 1);
-            
+
             function countdown() {
                 let diff = nextUnlock - new Date();
-                if (diff <= 0) {
-                    location.reload();
-                }
-                let hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-                let minutes = Math.floor((diff / (1000 * 60)) % 60);
-                let seconds = Math.floor((diff / 1000) % 60);
-                document.getElementById("countdown").textContent = `Next video in: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                if (diff <= 0) location.reload();
+                let hours = String(Math.floor((diff / (1000 * 60 * 60)) % 24)).padStart(2, '0');
+                let minutes = String(Math.floor((diff / (1000 * 60)) % 60)).padStart(2, '0');
+                let seconds = String(Math.floor((diff / 1000) % 60)).padStart(2, '0');
+                document.getElementById("countdown").textContent = `Next video in: ${hours}:${minutes}:${seconds}`;
             }
-            
             setInterval(countdown, 1000);
             countdown();
         }
@@ -199,4 +197,5 @@
     </script>
 </body>
 </html>
+
 
