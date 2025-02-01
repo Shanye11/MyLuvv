@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Luvv</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            background-color: #0d0d0d;
+            color: #ff4d6d;
+            margin: 0;
+            padding: 20px;
+            overflow-y: scroll;
+            scrollbar-width: thin;
+            scrollbar-color: #ff4d6d #1a1a1a;
+            animation: fadeIn 1s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        body::-webkit-scrollbar {
+            width: 8px;
+        }
+        body::-webkit-scrollbar-thumb {
+            background-color: #ff4d6d;
+            border-radius: 4px;
+        }
+
+        .container {
+            width: 80%;
+            max-width: 1200px;
+            padding: 30px;
+            background: #1a1a1a;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(255, 77, 109, 0.6);
+            margin: auto;
+        }
+
+        .logo {
+            max-width: 150px;
+            margin-bottom: 10px;
+        }
+
+        h1 {
+            color: #ff4d6d;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        p {
+            color: #d9d9d9;
+            font-size: 1.1em;
+        }
+
+        #countdown {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #ff3333;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite alternate;
+        }
+
+        @keyframes pulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.05); }
+        }
+
+        #video-list {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .video-item {
+            width: 60%;
+            padding: 10px;
+            background: #222222;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            position: relative;
+        }
+
+        .video-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255, 20, 147, 0.8);
+        }
+
+        .video-item.locked {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(100%);
+        }
+
+        .video-item.locked::after {
+            content: attr(data-unlock-time);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+
+        video {
+            width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img src="images/logoo.png" alt="Logo" class="logo">
+        <h1>My Luvv</h1>
+        <p>One video per day, just for you.</p>
+        <p id="countdown">Next video in: --:--:--</p>
+        <div id="video-list"></div>
+    </div>
+    <script>
+        const videos = [
+            { src: "WebVids/vid1.mov", dayOffset: 0 },
+            { src: "WebVids/vid2.mov", dayOffset: 1 },
+            { src: "WebVids/vid3.mov", dayOffset: 2 },
+            { src: "WebVids/vid4.mov", dayOffset: 3 }
+        ];
+
+        function getDaysSinceStart() {
+            let firstVideoTimestamp = localStorage.getItem("firstVideoTimestamp");
+            if (!firstVideoTimestamp) return 0;
+            let firstPlayDate = new Date(parseInt(firstVideoTimestamp));
+            let now = new Date();
+            let diffTime = now - firstPlayDate;
+            return Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        }
+
+        function loadVideos() {
+            const videoList = document.getElementById("video-list");
+            const daysSinceStart = getDaysSinceStart();
+            
+            videos.forEach((video, index) => {
+                const videoItem = document.createElement("div");
+                videoItem.classList.add("video-item");
+                
+                const videoElement = document.createElement("video");
+                videoElement.controls = true;
+                
+                const sourceElement = document.createElement("source");
+                sourceElement.src = video.src;
+                sourceElement.type = "video/mp4";
+                videoElement.appendChild(sourceElement);
+                
+                if (video.dayOffset > daysSinceStart) {
+                    videoItem.classList.add("locked");
+                    let unlockDate = new Date(parseInt(localStorage.getItem("firstVideoTimestamp")));
+                    unlockDate.setDate(unlockDate.getDate() + video.dayOffset);
+                    videoItem.setAttribute("data-unlock-time", `Video locked until ${unlockDate.toDateString()}`);
+                } 
+                
+                videoItem.appendChild(videoElement);
+                videoList.appendChild(videoItem);
+            });
+        }
+
+        function updateCountdown() {
+            let firstVideoTimestamp = localStorage.getItem("firstVideoTimestamp");
+            if (!firstVideoTimestamp) return;
+            
+            let nextUnlock = new Date(parseInt(firstVideoTimestamp));
+            nextUnlock.setDate(nextUnlock.getDate() + getDaysSinceStart() + 1);
+            
+            function countdown() {
+                let diff = nextUnlock - new Date();
+                if (diff <= 0) {
+                    location.reload();
+                }
+                let hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                let minutes = Math.floor((diff / (1000 * 60)) % 60);
+                let seconds = Math.floor((diff / 1000) % 60);
+                document.getElementById("countdown").textContent = `Next video in: ${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            }
+            
+            setInterval(countdown, 1000);
+            countdown();
+        }
+
+        loadVideos();
+        updateCountdown();
+    </script>
+</body>
+</html>
+

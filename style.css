@@ -1,0 +1,52 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #0d0d0d; /* Black */
+    color: #ff4d6d; /* Pinkish Red */
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 600px;
+    margin: auto;
+    padding: 20px;
+    background: #1a1a1a; /* Dark Grey */
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(255, 77, 109, 0.6); /* Soft Pink Glow */
+}
+
+h1 {
+    color: #ff4d6d; /* Pinkish Red */
+    font-size: 2em;
+}
+
+p {
+    color: #d9d9d9; /* Light Grey */
+}
+
+#countdown {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #ff3333; /* Red */
+}
+
+.video-item {
+    margin-top: 15px;
+    padding: 10px;
+    background: #222222; /* Dark Grey */
+    border-radius: 8px;
+    box-shadow: 0 0 5px rgba(255, 0, 0, 0.5); /* Red Glow */
+}
+
+video {
+    width: 100%;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.locked {
+    opacity: 0.4;
+    pointer-events: none;
+    filter: grayscale(100%);
+}
